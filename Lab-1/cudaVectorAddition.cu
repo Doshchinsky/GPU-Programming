@@ -25,6 +25,7 @@ __host__ int main()
 	float* devVec2;
 	float* devVec3;
 
+	cudaEvent_t start, stop;
 	cudaMalloc((void**)&devVec1, sizeof(float) * SIZE);
 	cudaMalloc((void**)&devVec2, sizeof(float) * SIZE);
 	cudaMalloc((void**)&devVec3, sizeof(float) * SIZE);
@@ -34,7 +35,12 @@ __host__ int main()
 
 	int block = 512;
 
+	cudaEventCreate(&start);
+	cudaEventCreate(&stop);
+	
+	cudaEventRecord(start);
 	addVector<<<SIZE/512, block>>>(devVec1, devVec2, devVec3);
+	cudaEventRecord(stop);
 
 	cudaEvent_t syncEvent;
 
@@ -44,11 +50,22 @@ __host__ int main()
 
 	cudaMemcpy(vec3, devVec3, sizeof(float) * SIZE, cudaMemcpyDeviceToHost);
 
-	for (int i = 0; i < SIZE; i++) 
-		printf("Element #%i: %.1f\n", i , vec3[i]);
+	float time = 0;
+//	for (int i = 0; i < SIZE; i++) 
+//		printf("Element #%i: %.1f\n", i , vec3[i]);
+	cudaEventElapsedTime(&time, start, stop);
+	printf("Elapsed time: %f\n", time);
 
+	FILE *f = fopen("time.txt", "a+");
+	if (f == NULL) {
+		fprintf(stderr, "FILE ERROR!\n");
+	} else {
+		fprintf(f, "%f 512\n", time);
+	}
+	fclose(f);
 	cudaEventDestroy(syncEvent);
-
+	cudaEventDestroy(start);
+	cudaEventDestroy(stop);
 	cudaFree(devVec1);
 	cudaFree(devVec2);
 	cudaFree(devVec3);
