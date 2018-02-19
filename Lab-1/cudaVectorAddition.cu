@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define SIZE 10
+#define SIZE (1024*1024)
 
 __global__ void addVector(float* left, float* right, float* result)
 {
@@ -32,11 +32,9 @@ __host__ int main()
 	cudaMemcpy(devVec1, vec1, sizeof(float) * SIZE, cudaMemcpyHostToDevice);
 	cudaMemcpy(devVec2, vec2, sizeof(float) * SIZE, cudaMemcpyHostToDevice);
 
-	dim3 gridSize = dim3(1, 1, 1);
-	dim3 blockSize = dim3(SIZE, 1, 1);
+	int block = 512;
 
-	addVector<<<gridSize, blockSize>>>(devVec1, devVec2, devVec3);
-	addVector<<<1, SIZE>>>(devVec1, devVec2, devVec3);
+	addVector<<<SIZE/512, block>>>(devVec1, devVec2, devVec3);
 
 	cudaEvent_t syncEvent;
 
