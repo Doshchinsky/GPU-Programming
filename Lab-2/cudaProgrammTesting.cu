@@ -18,7 +18,7 @@ __global__ void addVector(float* left, float* right, float* result)
 	result[idx] = left[idx] + right[idx];
 }
 
-#define SIZE 1024 
+#define SIZE 2048 
 __host__ int main()
 {
 	float elapsedTime;
@@ -34,7 +34,7 @@ __host__ int main()
 	{
 		vec1[i] = i;
 		vec2[i] = i;
-		printf("#%d\t%f\t %f\n", i, vec1[i], vec2[i]);
+//		printf("#%d\t%f\t %f\n", i, vec1[i], vec2[i]);
 	}
 
 	float* devVec1;
